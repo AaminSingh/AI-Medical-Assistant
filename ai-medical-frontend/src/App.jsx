@@ -36,14 +36,12 @@ const LoginScreen = ({ onLoginSuccess }) => {
         if (isLoginMode) {
           onLoginSuccess(response.data.data.user);
         } else {
-          // If registered successfully, clear password and switch to login mode
           setIsLoginMode(true);
           setPassword('');
           setError('Registration successful! Please login.');
         }
       }
     } catch (err) {
-      // Show the exact error from the backend (like "User not found") or a fallback
       setError(err.response?.data?.message || 'Connection failed. Is your Node.js backend running on port 8000?');
     } finally {
       setLoading(false);
@@ -71,7 +69,6 @@ const LoginScreen = ({ onLoginSuccess }) => {
               </div>
             )}
 
-            {/* Show Name and Username fields only when registering */}
             {!isLoginMode && (
               <>
                 <div>
@@ -110,7 +107,6 @@ const LoginScreen = ({ onLoginSuccess }) => {
             </button>
           </form>
 
-          {/* Toggle Button */}
           <div className="mt-6 text-center">
             <button type="button" onClick={() => { setIsLoginMode(!isLoginMode); setError(''); }} className="text-sm text-blue-600 hover:underline font-medium">
               {isLoginMode ? "Don't have an account? Register here" : "Already have an account? Login here"}
@@ -149,15 +145,25 @@ export default function App() {
     if (!inputValue.trim()) return;
 
     const newUserMsg = { id: Date.now(), sender: 'user', text: inputValue, type: 'text' };
-    setMessages(prev => [...prev, newUserMsg]);
+    const updatedMessages = [...messages, newUserMsg];
+
+    setMessages(updatedMessages);
     setInputValue('');
     setIsAnalyzing(true);
     setIsEmergency(false);
 
     try {
-      // Make the actual call to your backend!
+      // Filter and format the conversation history for the backend
+      const chatHistory = updatedMessages
+        .filter(msg => msg.type === 'text')
+        .map(msg => ({
+          role: msg.sender === 'ai' ? 'assistant' : 'user',
+          content: msg.text
+        }));
+
+      // Send the entire array of messages to the new endpoint
       const response = await axios.post(`${API_BASE_URL}/diagnose`, {
-        text: newUserMsg.text
+        messages: chatHistory
       });
 
       const { data } = response.data;
@@ -171,22 +177,31 @@ export default function App() {
           text: data.message || 'URGENT: Your symptoms indicate a potentially life-threatening condition. The AI diagnosis has been bypassed.',
           type: 'emergency'
         }]);
-      } else {
-        // Handle standard ML/LLM diagnosis
+      } else if (data.type === 'question') {
+        // Handle Conversational Follow-Up
         setMessages(prev => [...prev, {
           id: Date.now() + 1,
           sender: 'ai',
-          text: 'I have analyzed your symptoms using our medical ML engine. Here is your differential diagnosis:',
+          text: data.text,
+          type: 'text'
+        }]);
+      } else {
+        // Handle Final Diagnosis Card
+        setMessages(prev => [...prev, {
+          id: Date.now() + 1,
+          sender: 'ai',
+          text: 'I have gathered enough details and analyzed your symptoms using our medical ML engine. Here is your differential diagnosis:',
           type: 'diagnosis',
           data: data
         }]);
       }
     } catch (error) {
       console.error("Diagnosis Error:", error);
+      const errorMsg = error.response?.data?.message || "I'm sorry, there was a problem connecting to the diagnosis server. Please try again.";
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         sender: 'ai',
-        text: "I'm sorry, there was a problem connecting to the diagnosis server. Please try again.",
+        text: `Error: ${errorMsg}`,
         type: 'text'
       }]);
     } finally {
@@ -204,7 +219,7 @@ export default function App() {
   };
 
   const generatePDF = () => {
-    window.print(); // Simple native way to export the report to PDF
+    window.print();
   };
 
   const Sidebar = () => (
@@ -265,8 +280,8 @@ export default function App() {
             )}
 
             <div className={`max-w-[85%] md:max-w-[70%] rounded-2xl p-4 shadow-sm ${msg.sender === 'user' ? 'bg-blue-600 text-white rounded-br-none'
-                : msg.type === 'emergency' ? 'bg-red-50 text-red-900 border border-red-200 rounded-bl-none'
-                  : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
+              : msg.type === 'emergency' ? 'bg-red-50 text-red-900 border border-red-200 rounded-bl-none'
+                : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
               }`}>
               <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{msg.text}</p>
 
@@ -326,7 +341,7 @@ export default function App() {
             </div>
             <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-none p-4 shadow-sm flex items-center gap-2 text-slate-500">
               <Loader2 size={16} className="animate-spin text-blue-500" />
-              <span className="ml-2 text-sm">Processing via ML Engine & Groq LLM...</span>
+              <span className="ml-2 text-sm">AI Medical Assistant is typing...</span>
             </div>
           </div>
         )}
@@ -340,7 +355,7 @@ export default function App() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isAnalyzing || isEmergency}
-            placeholder={isEmergency ? "Emergency triggered. Input disabled." : "Describe your symptoms in detail..."}
+            placeholder={isEmergency ? "Emergency triggered. Input disabled." : "Reply to the AI..."}
             className="w-full bg-slate-100 border border-slate-300 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl px-5 py-4 pr-16 outline-none transition-all disabled:opacity-50 text-slate-800"
           />
           <button
