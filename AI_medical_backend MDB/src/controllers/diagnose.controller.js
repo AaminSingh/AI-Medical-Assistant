@@ -4,11 +4,51 @@ import {
   analyzeConversation,
   getPredictions,
   getCareInsights,
+  generateDietPlan // <-- ADDED THIS IMPORT
 } from "../services/ai.service.js";
 import { getDiseaseDetails } from "../services/database.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
+
+/**
+ * GET /api/v1/diagnose/history
+ * Fetches all past consultations for the authenticated user.
+ */
+export const getConsultationHistory = asyncHandler(async (req, res) => {
+  // Find all consultations for this patient, sorted by newest first
+  const history = await Consultation.find({ patientId: req.user._id })
+    .sort({ createdAt: -1 })
+    // Only select the fields we need for the UI table to save bandwidth
+    .select("createdAt rawSymptoms predictions isEmergency recommendedSpecialist");
+
+  return res.status(200).json(
+    new ApiResponse(200, history, "Patient history retrieved successfully")
+  );
+});
+
+/**
+ * POST /api/v1/diagnose/diet
+ * Generates an AI diet plan based on user demographics.
+ */
+export const processDietPlan = asyncHandler(async (req, res) => {
+  const demographics = req.body;
+
+  if (!demographics || Object.keys(demographics).length === 0) {
+    throw new ApiError(400, "Health demographics data is required.");
+  }
+
+  // Call the Groq AI service
+  const dietPlan = await generateDietPlan(demographics);
+
+  if (!dietPlan) {
+    throw new ApiError(500, "Failed to generate diet recommendations.");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, dietPlan, "Diet plan generated successfully")
+  );
+});
 
 /**
  * POST /api/v1/diagnose
