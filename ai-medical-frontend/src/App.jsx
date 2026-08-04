@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import {
   Activity, MessageSquare, History, FileText, AlertTriangle,
-  Send, Download, User, Bot, Plus, ChevronRight, ShieldAlert,
-  Stethoscope, Lock, Mail, Loader2
+  Send, Download, User, Bot, Plus, ChevronRight, ChevronLeft,
+  ShieldAlert, Stethoscope, Lock, Mail, Loader2, Calculator, Apple, LogOut, LayoutDashboard
 } from 'lucide-react';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend
+} from 'recharts';
 
-// Configure axios to always send cookies (JWT) with requests
 axios.defaults.withCredentials = true;
 const API_BASE_URL = 'http://localhost:8000/api/v1';
 
@@ -23,15 +26,10 @@ const LoginScreen = ({ onLoginSuccess }) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
     try {
       const endpoint = isLoginMode ? '/auth/login' : '/auth/register';
-      const payload = isLoginMode
-        ? { email, password }
-        : { email, password, username, fullName };
-
+      const payload = isLoginMode ? { email, password } : { email, password, username, fullName };
       const response = await axios.post(`${API_BASE_URL}${endpoint}`, payload);
-
       if (response.data.success) {
         if (isLoginMode) {
           onLoginSuccess(response.data.data.user);
@@ -42,73 +40,69 @@ const LoginScreen = ({ onLoginSuccess }) => {
         }
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Connection failed. Is your Node.js backend running on port 8000?');
+      setError(err.response?.data?.message || 'Connection failed.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-blue-600 p-8 text-center">
-          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Activity size={32} className="text-blue-600" />
+    <div className="min-h-screen bg-[#0B1120] bg-grid-pattern flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-[#111827] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+        <div className="p-8 text-center border-b border-slate-800">
+          <div className="w-16 h-16 bg-indigo-600/20 border border-indigo-500/30 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <Activity size={32} className="text-indigo-400" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-1">DSAI Medical AI</h2>
-          <p className="text-blue-100 text-sm">
-            {isLoginMode ? 'Sign in to access your portal' : 'Create your patient account'}
+          <h2 className="text-2xl font-bold text-white mb-1">Aegis AI Medical</h2>
+          <p className="text-slate-400 text-sm">
+            {isLoginMode ? 'Sign in to your diagnostic portal' : 'Create your secure account'}
           </p>
         </div>
-
         <div className="p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className={`p-3 rounded-lg text-sm border ${error.includes('successful') ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
+              <div className={`p-3 rounded-lg text-sm border ${error.includes('successful') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
                 {error}
               </div>
             )}
-
             {!isLoginMode && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                  <label className="block text-sm font-medium text-slate-400 mb-1">Full Name</label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 text-slate-400" size={18} />
-                    <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required />
+                    <User className="absolute left-3 top-3 text-slate-500" size={18} />
+                    <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-[#1F2937] text-white pl-10 pr-4 py-2 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Username</label>
+                  <label className="block text-sm font-medium text-slate-400 mb-1">Username</label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 text-slate-400" size={18} />
-                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required />
+                    <User className="absolute left-3 top-3 text-slate-500" size={18} />
+                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-[#1F2937] text-white pl-10 pr-4 py-2 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required />
                   </div>
                 </div>
               </>
             )}
-
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+              <label className="block text-sm font-medium text-slate-400 mb-1">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 text-slate-400" size={18} />
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required />
+                <Mail className="absolute left-3 top-3 text-slate-500" size={18} />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#1F2937] text-white pl-10 pr-4 py-2 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+              <label className="block text-sm font-medium text-slate-400 mb-1">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 text-slate-400" size={18} />
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required />
+                <Lock className="absolute left-3 top-3 text-slate-500" size={18} />
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-[#1F2937] text-white pl-10 pr-4 py-2 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required />
               </div>
             </div>
-            <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+            <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 mt-2 cursor-pointer">
               {loading ? <Loader2 size={18} className="animate-spin" /> : (isLoginMode ? 'Secure Login' : 'Create Account')}
             </button>
           </form>
-
           <div className="mt-6 text-center">
-            <button type="button" onClick={() => { setIsLoginMode(!isLoginMode); setError(''); }} className="text-sm text-blue-600 hover:underline font-medium">
+            <button type="button" onClick={() => { setIsLoginMode(!isLoginMode); setError(''); }} className="text-sm text-indigo-400 hover:text-indigo-300 font-medium cursor-pointer">
               {isLoginMode ? "Don't have an account? Register here" : "Already have an account? Login here"}
             </button>
           </div>
@@ -118,24 +112,389 @@ const LoginScreen = ({ onLoginSuccess }) => {
   );
 };
 
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [activeView, setActiveView] = useState('chat');
+const DashboardView = ({ setActiveView }) => {
+  const accuracyData = [
+    { name: 'Naive Bayes', Accuracy: 89.1 },
+    { name: 'Decision Tree', Accuracy: 92.4 },
+    { name: 'Random Forest', Accuracy: 96.5 },
+    { name: 'XGBoost (Aegis)', Accuracy: 98.6 },
+  ];
+
+  const cohortData = [
+    { name: 'Malaria', value: 16, color: '#3b82f6' },
+    { name: 'Typhoid', value: 15, color: '#10b981' },
+    { name: 'Dengue', value: 15, color: '#f59e0b' },
+    { name: 'Jaundice', value: 14, color: '#ef4444' },
+    { name: 'Diabetes', value: 13, color: '#8b5cf6' },
+    { name: 'Hypertension', value: 17, color: '#ec4899' },
+    { name: 'Others', value: 10, color: '#64748b' },
+  ];
+
+  return (
+    <div className="p-8 h-full overflow-y-auto scrollbar-dark">
+      <div className="mb-10 bg-gradient-to-r from-indigo-900/40 to-[#111827] border border-indigo-500/20 p-8 rounded-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+        <div className="relative z-10 max-w-3xl">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold tracking-wide uppercase mb-4 border border-indigo-500/30">
+            <Activity size={14} /> AI Powered Healthcare
+          </span>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+            Next-Generation <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Medical Diagnosis</span>
+          </h1>
+          <p className="text-slate-300 text-lg mb-8 leading-relaxed">
+            Get AI-powered symptom analysis, clinical NLP processing, and actionable specialist recommendations instantly.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <button onClick={() => setActiveView('chat')} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2 cursor-pointer">
+              Start Diagnosis <ChevronRight size={18} />
+            </button>
+            <button onClick={() => setActiveView('history')} className="bg-[#1F2937] hover:bg-slate-700 text-white px-6 py-3 rounded-xl font-medium border border-slate-600 transition-all flex items-center gap-2 cursor-pointer">
+              View History
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="bg-[#111827] border border-slate-800 p-6 rounded-xl shadow-lg">
+          <h3 className="text-lg font-semibold text-slate-200 mb-6">Algorithm Performance Evaluation</h3>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={accuracyData} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                <XAxis dataKey="name" stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                <YAxis stroke="#94a3b8" domain={[80, 100]} tick={{ fontSize: 12 }} />
+                <Tooltip cursor={{ fill: '#1e293b' }} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc', borderRadius: '8px' }} />
+                <Bar dataKey="Accuracy" fill="#6366f1" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-[#111827] border border-slate-800 p-6 rounded-xl shadow-lg flex flex-col">
+          <h3 className="text-lg font-semibold text-slate-200 mb-2">Dataset Diagnostic Cohorts</h3>
+          <p className="text-sm text-slate-400 mb-6">Overview of disease classes mapped inside training dataset.</p>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="h-64 w-full max-w-md">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={cohortData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                    {cohortData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc', borderRadius: '8px' }} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const BmiCalculatorView = () => {
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [bmi, setBmi] = useState(null);
+  const [category, setCategory] = useState('');
+
+  const calculateBMI = (e) => {
+    e.preventDefault();
+    if (height && weight) {
+      const heightInMeters = height / 100;
+      const bmiValue = (weight / (heightInMeters * heightInMeters)).toFixed(1);
+      setBmi(bmiValue);
+      if (bmiValue < 18.5) setCategory('Underweight');
+      else if (bmiValue >= 18.5 && bmiValue <= 24.9) setCategory('Normal Weight');
+      else if (bmiValue >= 25 && bmiValue <= 29.9) setCategory('Overweight');
+      else setCategory('Obese');
+    }
+  };
+
+  return (
+    <div className="p-8 h-full overflow-y-auto flex flex-col items-center">
+      <div className="mb-10 text-center max-w-2xl mt-8">
+        <div className="w-16 h-16 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
+          <Calculator size={32} />
+        </div>
+        <h2 className="text-3xl font-bold text-white mb-3">BMI Index Calculator</h2>
+        <p className="text-slate-400">Calculate your Body Mass Index to quickly assess healthy weight.</p>
+      </div>
+
+      <div className="max-w-md w-full bg-[#111827] border border-slate-800 p-8 rounded-2xl shadow-xl">
+        <form onSubmit={calculateBMI} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Height (cm)</label>
+            <input type="number" value={height} onChange={e => setHeight(e.target.value)} placeholder="e.g. 175" className="w-full bg-[#1F2937] text-white px-4 py-3 border border-slate-700 rounded-xl outline-none" required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Weight (kg)</label>
+            <input type="number" value={weight} onChange={e => setWeight(e.target.value)} placeholder="e.g. 70" className="w-full bg-[#1F2937] text-white px-4 py-3 border border-slate-700 rounded-xl outline-none" required />
+          </div>
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-colors cursor-pointer mt-2">Calculate BMI</button>
+        </form>
+
+        {bmi && (
+          <div className="mt-8 p-6 bg-[#1F2937] border border-slate-700 rounded-xl text-center">
+            <p className="text-slate-400 text-sm mb-2">Your BMI is</p>
+            <p className="text-5xl font-bold text-white mb-3">{bmi}</p>
+            <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold border ${category === 'Normal Weight' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}`}>
+              {category}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const DietPlannerView = () => {
+  const [formData, setFormData] = useState({ age: '', gender: 'Male', weight: '', height: '', goal: 'General Health', preference: 'Veg', allergies: '' });
+  const [loading, setLoading] = useState(false);
+  const [dietPlan, setDietPlan] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/diagnose/diet`, formData);
+      setDietPlan(res.data.data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to generate diet plan.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="p-8 h-full overflow-y-auto scrollbar-dark">
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+          <div className="p-2 bg-emerald-500/10 rounded-lg"><Apple className="text-emerald-500" size={28} /></div>
+          AI Diet Recommendation & Planner
+        </h2>
+        <p className="text-slate-400">Personalized macro targets and dynamic meal suggestions.</p>
+      </div>
+
+      <div className="flex flex-col xl:flex-row gap-8">
+        <div className="w-full xl:w-[400px] bg-[#111827] border border-slate-800 p-6 rounded-2xl shadow-lg h-fit">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">Weight (kg)</label>
+                <input type="number" required value={formData.weight} onChange={e => setFormData({ ...formData, weight: e.target.value })} className="w-full bg-[#1F2937] text-white px-4 py-2.5 rounded-xl border border-slate-700 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">Height (cm)</label>
+                <input type="number" required value={formData.height} onChange={e => setFormData({ ...formData, height: e.target.value })} className="w-full bg-[#1F2937] text-white px-4 py-2.5 rounded-xl border border-slate-700 outline-none" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">Age</label>
+                <input type="number" required value={formData.age} onChange={e => setFormData({ ...formData, age: e.target.value })} className="w-full bg-[#1F2937] text-white px-4 py-2.5 rounded-xl border border-slate-700 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">Gender</label>
+                <select value={formData.gender} onChange={e => setFormData({ ...formData, gender: e.target.value })} className="w-full bg-[#1F2937] text-white px-4 py-2.5 rounded-xl border border-slate-700 outline-none">
+                  <option>Male</option><option>Female</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl transition-colors mt-6 flex justify-center cursor-pointer">
+              {loading ? <Loader2 className="animate-spin" size={20} /> : 'Generate AI Plan'}
+            </button>
+          </form>
+        </div>
+
+        <div className="flex-1 bg-[#111827]/50 border border-slate-800 p-8 rounded-2xl flex flex-col min-h-[500px]">
+          {!dietPlan && !loading && (
+            <div className="m-auto text-center opacity-50">
+              <Apple size={64} className="mx-auto mb-4 text-slate-600" />
+              <p className="text-xl font-medium text-slate-300">Meal Recommendations Idle</p>
+            </div>
+          )}
+          {loading && (
+            <div className="m-auto text-center text-emerald-500">
+              <Loader2 size={48} className="animate-spin mx-auto mb-4" />
+              <p>Synthesizing nutritional data...</p>
+            </div>
+          )}
+          {dietPlan && !loading && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="bg-[#1F2937] p-4 rounded-xl text-center"><p className="text-xs text-slate-400">Calories</p><p className="text-xl font-bold text-emerald-400">{dietPlan.calories}</p></div>
+                <div className="bg-[#1F2937] p-4 rounded-xl text-center"><p className="text-xs text-slate-400">Protein</p><p className="text-xl font-bold text-blue-400">{dietPlan.protein}</p></div>
+                <div className="bg-[#1F2937] p-4 rounded-xl text-center"><p className="text-xs text-slate-400">Carbs</p><p className="text-xl font-bold text-amber-400">{dietPlan.carbs}</p></div>
+                <div className="bg-[#1F2937] p-4 rounded-xl text-center"><p className="text-xs text-slate-400">Fats</p><p className="text-xl font-bold text-red-400">{dietPlan.fats}</p></div>
+              </div>
+              <div className="space-y-3">
+                {dietPlan.meals?.map((meal, idx) => (
+                  <div key={idx} className="bg-[#111827] p-4 rounded-xl border border-slate-800 flex gap-4">
+                    <span className="px-3 py-1 bg-slate-800 text-emerald-400 text-xs font-bold rounded-lg uppercase">{meal.name}</span>
+                    <span className="text-slate-300 text-sm">{meal.suggestion}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const HistoryView = () => {
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedConsultation, setSelectedConsultation] = useState(null);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/diagnose/history`);
+        setHistory(res.data.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistory();
+  }, []);
+
+  return (
+    <div className="p-8 h-full flex flex-col">
+      <h2 className="text-3xl font-bold text-white mb-6">Consultation History</h2>
+      <div className="flex-1 flex gap-8 min-h-0">
+        <div className="w-[400px] bg-[#111827] border border-slate-800 rounded-2xl overflow-y-auto p-4 space-y-3">
+          {loading ? <p className="text-slate-500 text-center">Loading...</p> : history.map((record) => (
+            <div key={record._id} onClick={() => setSelectedConsultation(record)} className={`p-4 rounded-xl border cursor-pointer ${selectedConsultation?._id === record._id ? 'bg-indigo-600/10 border-indigo-500' : 'bg-[#1F2937] border-slate-700'}`}>
+              <p className="text-xs text-slate-400">{new Date(record.createdAt).toLocaleString()}</p>
+              <h4 className="font-bold text-white mt-1">{record.predictions?.[0]?.disease || 'Consultation'}</h4>
+            </div>
+          ))}
+        </div>
+        <div className="flex-1 bg-[#111827] border border-slate-800 rounded-2xl p-8 overflow-y-auto">
+          {!selectedConsultation ? <p className="text-slate-500 text-center mt-20">Select a record to view details.</p> : (
+            <div>
+              <h3 className="text-2xl font-bold text-white mb-4">Report Details</h3>
+              <p className="text-slate-300 mb-4">"{selectedConsultation.rawSymptoms}"</p>
+              <div className="space-y-3">
+                {selectedConsultation.predictions?.map((p, i) => (
+                  <div key={i} className="bg-[#1F2937] p-3 rounded-lg flex justify-between">
+                    <span className="text-white">{p.disease}</span>
+                    <span className="text-indigo-400 font-bold">{p.probability}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ReportView = ({ reportData, userMsg, onBack }) => {
+  const generatePDF = () => {
+    window.print();
+  };
+
+  return (
+    <div className="flex-1 flex flex-col h-full bg-[#0B1120] p-8 overflow-y-auto items-center">
+      <div className="w-full max-w-3xl flex justify-between items-center mb-6 no-print">
+        <button onClick={onBack} className="text-slate-400 hover:text-white font-medium flex items-center gap-2 cursor-pointer">
+          <ChevronLeft size={20} /> Back to Chat
+        </button>
+        <button onClick={generatePDF} className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm cursor-pointer">
+          <Download size={18} /> Download as PDF
+        </button>
+      </div>
+
+      <div className="bg-white w-full max-w-3xl rounded-xl shadow-2xl p-12 text-slate-900 border border-slate-300 print:shadow-none print:border-none print:p-0">
+        <div className="border-b-2 border-slate-800 pb-6 mb-8 flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">AI Medical Summary</h1>
+            <p className="text-slate-500 mt-1">Generated by Aegis AI Diagnostic Platform</p>
+          </div>
+          <div className="text-right text-sm text-slate-500">
+            <p>Date: {new Date().toLocaleDateString()}</p>
+            <p>Consultation ID: #{reportData?.consultationId?.slice(-6) || '10294'}</p>
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-lg font-bold mb-3 uppercase tracking-wider text-sm border-l-4 border-indigo-600 pl-3">1. Patient Reported Symptoms</h2>
+          <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <p className="italic text-slate-700">"{userMsg}"</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {reportData?.extractedSymptoms?.map(s => (
+                <span key={s} className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded">NLP Extracted: {s}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-lg font-bold mb-3 uppercase tracking-wider text-sm border-l-4 border-indigo-600 pl-3">2. Differential Diagnosis (ML Predictions)</h2>
+          <table className="w-full border-collapse mb-4">
+            <thead>
+              <tr className="bg-slate-100 text-left">
+                <th className="border border-slate-300 p-3">Condition</th>
+                <th className="border border-slate-300 p-3">Probability</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reportData?.predictions?.map((pred, i) => (
+                <tr key={i}>
+                  <td className={`border border-slate-300 p-3 ${i === 0 ? 'font-semibold' : ''}`}>{pred.disease}</td>
+                  <td className={`border border-slate-300 p-3 ${i === 0 ? 'font-bold text-indigo-600' : ''}`}>{pred.probability}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-lg font-bold mb-3 uppercase tracking-wider text-sm border-l-4 border-indigo-600 pl-3">3. Next Steps & Recommendations</h2>
+          <p className="font-semibold text-slate-800 mb-2">Suggested Specialist: <span className="font-normal text-slate-700">{reportData?.recommendedSpecialist || 'General Practitioner'}</span></p>
+          <p className="font-semibold text-slate-800 mb-2">Care Guidelines & Precautions:</p>
+          <ul className="list-disc pl-5 text-slate-700 space-y-1 text-sm">
+            {reportData?.diseaseDetails?.precautions?.map((tip, i) => <li key={`prec-${i}`}>{tip}</li>)}
+            {reportData?.careTips?.map((tip, i) => <li key={`tip-${i}`}>{tip}</li>)}
+          </ul>
+        </div>
+
+        <div className="mt-12 border-2 border-red-200 bg-red-50 p-5 rounded-xl text-red-900">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="shrink-0 text-red-600" size={24} />
+            <div>
+              <h4 className="font-bold uppercase tracking-wider text-sm mb-1 text-red-700">Medical Disclaimer</h4>
+              <p className="text-xs leading-relaxed">
+                This report is generated by an AI capstone project for educational purposes only. It is NOT a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ChatView = ({ user, onOpenReport }) => {
   const [inputValue, setInputValue] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isEmergency, setIsEmergency] = useState(false);
   const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: 'ai',
-      text: 'Hello. I am your AI Medical Diagnosis Assistant. Please describe your symptoms in detail.',
-      type: 'text'
-    }
+    { role: 'assistant', content: `Hello ${user?.fullName || user?.username || ''}. I am Aegis AI. Please describe your symptoms in detail so I can help triage your condition.`, type: 'text' }
   ]);
-
   const chatEndRef = useRef(null);
 
-  // Auto-scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAnalyzing]);
@@ -144,353 +503,251 @@ export default function App() {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    const newUserMsg = { id: Date.now(), sender: 'user', text: inputValue, type: 'text' };
-    const updatedMessages = [...messages, newUserMsg];
-
-    setMessages(updatedMessages);
+    const newHistory = [...messages, { role: 'user', content: inputValue, type: 'text' }];
+    setMessages(newHistory);
     setInputValue('');
     setIsAnalyzing(true);
     setIsEmergency(false);
 
     try {
-      // Filter and format the conversation history for the backend
-      const chatHistory = updatedMessages
-        .filter(msg => msg.type === 'text')
-        .map(msg => ({
-          role: msg.sender === 'ai' ? 'assistant' : 'user',
-          content: msg.text
-        }));
-
-      // Send the entire array of messages to the new endpoint
       const response = await axios.post(`${API_BASE_URL}/diagnose`, {
-        messages: chatHistory
+        messages: newHistory.map(m => ({ role: m.role, content: m.content }))
       });
-
       const { data } = response.data;
 
-      // Handle Emergency Triage Override
       if (data.isEmergency) {
         setIsEmergency(true);
-        setMessages(prev => [...prev, {
-          id: Date.now() + 1,
-          sender: 'ai',
-          text: data.message || 'URGENT: Your symptoms indicate a potentially life-threatening condition. The AI diagnosis has been bypassed.',
-          type: 'emergency'
-        }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: data.message, type: 'emergency' }]);
       } else if (data.type === 'question') {
-        // Handle Conversational Follow-Up
-        setMessages(prev => [...prev, {
-          id: Date.now() + 1,
-          sender: 'ai',
-          text: data.text,
-          type: 'text'
-        }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: data.text, type: 'text' }]);
       } else {
-        // Handle Final Diagnosis Card
         setMessages(prev => [...prev, {
-          id: Date.now() + 1,
-          sender: 'ai',
-          text: 'I have gathered enough details and analyzed your symptoms using our medical ML engine. Here is your differential diagnosis:',
+          role: 'assistant',
+          content: 'I have gathered enough details and analyzed your symptoms using our medical ML engine. Here is your differential diagnosis:',
           type: 'diagnosis',
-          data: data
+          data: data,
+          userSymptoms: newHistory.filter(m => m.role === 'user').map(m => m.content).join(' | ')
         }]);
       }
     } catch (error) {
-      console.error("Diagnosis Error:", error);
-      const errorMsg = error.response?.data?.message || "I'm sorry, there was a problem connecting to the diagnosis server. Please try again.";
-      setMessages(prev => [...prev, {
-        id: Date.now() + 1,
-        sender: 'ai',
-        text: `Error: ${errorMsg}`,
-        type: 'text'
-      }]);
+      const errorMsg = error.response?.data?.message || "Connection problem.";
+      setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${errorMsg}`, type: 'text' }]);
     } finally {
       setIsAnalyzing(false);
     }
   };
 
-  const handleNewChat = () => {
-    setMessages([{
-      id: Date.now(), sender: 'ai', type: 'text',
-      text: `Hello ${user.fullName}. I am your AI Medical Diagnosis Assistant. Please describe your symptoms in detail.`
-    }]);
-    setIsEmergency(false);
-    setActiveView('chat');
-  };
-
-  const generatePDF = () => {
-    window.print();
-  };
-
-  const Sidebar = () => (
-    <div className="no-print w-64 bg-slate-900 text-slate-300 flex flex-col h-full border-r border-slate-800 hidden md:flex">
-      <div className="p-4 flex items-center gap-3 text-white border-b border-slate-800 font-semibold text-lg">
-        <Activity className="text-blue-400" />
-        <span>DSAI Medical AI</span>
-      </div>
-
-      <div className="p-4 flex-1 overflow-y-auto">
-        <button onClick={handleNewChat} className="w-full flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors mb-6 shadow-sm">
-          <Plus size={18} /> <span>New Consultation</span>
-        </button>
-
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 px-2">Menu</p>
-          <button
-            onClick={() => setActiveView('chat')}
-            className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeView === 'chat' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800/50'}`}
-          >
-            <MessageSquare size={18} /> <span>Chat Assistant</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="p-4 border-t border-slate-800">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center">
-            <User size={20} className="text-slate-300" />
-          </div>
-          <div>
-            <p className="text-sm text-white font-medium">{user.username}</p>
-            <p className="text-xs text-slate-500">Online</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const ChatView = () => (
-    <div className="flex-1 flex flex-col h-full bg-slate-50 relative no-print overflow-hidden">
+  return (
+    <div className="flex-1 flex flex-col h-full relative overflow-hidden bg-[#0f172a]">
       {isEmergency && (
-        <div className="bg-red-600 text-white p-4 flex items-start sm:items-center justify-center gap-3 shadow-md z-10 animate-in slide-in-from-top shrink-0">
-          <ShieldAlert className="shrink-0" size={24} />
-          <p className="font-medium text-sm sm:text-base">
-            URGENT: Your symptoms require immediate medical attention. Please visit an emergency room.
-          </p>
+        <div className="bg-red-500/10 border-b border-red-500/20 p-4 flex items-start gap-4 shadow-sm z-10 shrink-0">
+          <div className="p-2 bg-red-500/20 rounded-full shrink-0 mt-1"><ShieldAlert size={20} className="text-red-500" /></div>
+          <div>
+            <h3 className="text-red-500 font-bold uppercase tracking-wide text-sm mb-1">Urgent Medical Alert</h3>
+            <p className="text-red-400 text-sm">Red-flag symptoms detected. Please visit an emergency room immediately.</p>
+          </div>
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
-        {messages.map((msg) => (
-          <div key={msg.id} className={`flex gap-4 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-            {msg.sender === 'ai' && (
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0 border border-blue-200">
-                <Bot size={20} className="text-blue-600" />
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-dark max-w-4xl mx-auto w-full">
+        {messages.map((msg, index) => (
+          <div key={index} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            {msg.role === 'assistant' && (
+              <div className="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 mt-1">
+                <Bot size={20} className="text-indigo-400" />
               </div>
             )}
 
-            <div className={`max-w-[85%] md:max-w-[70%] rounded-2xl p-4 shadow-sm ${msg.sender === 'user' ? 'bg-blue-600 text-white rounded-br-none'
-              : msg.type === 'emergency' ? 'bg-red-50 text-red-900 border border-red-200 rounded-bl-none'
-                : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
+            <div className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-5 shadow-sm ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-sm'
+                : msg.type === 'emergency' ? 'bg-[#1e293b] text-slate-200 border border-slate-700 rounded-tl-sm'
+                  : 'bg-[#1e293b] text-slate-200 border border-slate-700 rounded-tl-sm'
               }`}>
-              <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{msg.text}</p>
+              <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{msg.content}</p>
 
               {msg.type === 'diagnosis' && msg.data && (
-                <div className="mt-4 border-t border-slate-100 pt-4">
-                  <h4 className="font-semibold text-slate-900 flex items-center gap-2 mb-3">
-                    <Activity size={16} className="text-blue-500" /> Top Predicted Conditions
+                <div className="mt-6 border-t border-slate-700 pt-6">
+                  <h4 className="font-semibold text-white flex items-center gap-2 mb-4">
+                    <Activity size={18} className="text-indigo-400" /> Top Predicted Conditions
                   </h4>
-                  <div className="space-y-3 mb-4">
-                    {msg.data.predictions && msg.data.predictions.map((pred, idx) => (
+                  <div className="space-y-4 mb-6">
+                    {msg.data.predictions?.map((pred, idx) => (
                       <div key={idx}>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="font-medium">{pred.disease}</span>
-                          <span className="text-slate-500">{pred.probability}%</span>
+                        <div className="flex justify-between text-sm mb-1.5">
+                          <span className="font-medium text-slate-200">{pred.disease}</span>
+                          <span className="text-slate-400">{pred.probability}%</span>
                         </div>
-                        <div className="w-full bg-slate-100 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full ${idx === 0 ? 'bg-blue-500' : idx === 1 ? 'bg-blue-400/70' : 'bg-slate-300'}`}
-                            style={{ width: `${pred.probability}%` }}
-                          ></div>
+                        <div className="w-full bg-slate-800 rounded-full h-1.5">
+                          <div className={`h-1.5 rounded-full ${idx === 0 ? 'bg-indigo-500' : 'bg-slate-600'}`} style={{ width: `${pred.probability}%` }}></div>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="bg-blue-50 rounded-lg p-3 mb-4">
-                    <p className="text-sm font-medium text-blue-900 mb-1">Suggested Specialist:</p>
-                    <p className="text-sm text-blue-800 flex items-center gap-2">
+                  <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 mb-5">
+                    <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-1">Suggested Specialist</p>
+                    <p className="text-sm text-indigo-200 flex items-center gap-2">
                       <Stethoscope size={16} /> {msg.data.recommendedSpecialist || 'General Practitioner'}
                     </p>
                   </div>
 
-                  <div className="mb-4">
-                    <p className="text-sm font-medium text-slate-900 mb-2">Care Tips & Precautions:</p>
-                    <ul className="list-disc pl-5 text-sm text-slate-600 space-y-1">
+                  <div className="mb-6">
+                    <p className="text-sm font-semibold text-white mb-2">Care Tips & Precautions:</p>
+                    <ul className="list-disc pl-5 text-sm text-slate-300 space-y-1.5">
                       {msg.data.diseaseDetails?.precautions?.map((tip, i) => <li key={`prec-${i}`}>{tip}</li>)}
                       {msg.data.careTips?.map((tip, i) => <li key={`gemini-${i}`}>{tip}</li>)}
                     </ul>
                   </div>
 
-                  <button
-                    onClick={() => setActiveView(`report-${msg.id}`)}
-                    className="w-full mt-2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
-                  >
+                  <button onClick={() => onOpenReport(msg.data, msg.userSymptoms)} className="w-full bg-[#111827] border border-slate-700 hover:bg-slate-800 text-white py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm">
                     <FileText size={16} /> Generate PDF Report
                   </button>
                 </div>
               )}
             </div>
+
+            {msg.role === 'user' && (
+              <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shrink-0 mt-1 shadow-md">
+                <User size={18} className="text-white" />
+              </div>
+            )}
           </div>
         ))}
 
         {isAnalyzing && (
           <div className="flex gap-4 justify-start">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0 border border-blue-200">
-              <Bot size={20} className="text-blue-600" />
+            <div className="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 mt-1">
+              <Bot size={20} className="text-indigo-400" />
             </div>
-            <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-none p-4 shadow-sm flex items-center gap-2 text-slate-500">
-              <Loader2 size={16} className="animate-spin text-blue-500" />
-              <span className="ml-2 text-sm">AI Medical Assistant is typing...</span>
+            <div className="bg-[#1e293b] border border-slate-700 rounded-2xl rounded-tl-sm p-4 shadow-sm flex items-center gap-3 text-slate-400">
+              <Loader2 size={16} className="animate-spin text-indigo-400" />
+              <span className="text-sm">Aegis AI is analyzing symptoms...</span>
             </div>
           </div>
         )}
-        <div ref={chatEndRef} />
+        <div ref={chatEndRef} className="h-4" />
       </div>
 
-      <div className="p-4 bg-white border-t border-slate-200 shrink-0 shadow-md">
+      <div className="p-4 bg-[#111827] border-t border-slate-800 shrink-0">
         <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative flex items-center">
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isAnalyzing || isEmergency}
-            placeholder={isEmergency ? "Emergency triggered. Input disabled." : "Reply to the AI..."}
-            className="w-full bg-slate-100 border border-slate-300 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl px-5 py-4 pr-16 outline-none transition-all disabled:opacity-50 text-slate-800"
+            placeholder={isEmergency ? "Emergency triggered." : "Describe symptoms or answer follow-up questions..."}
+            className="w-full bg-[#1e293b] border border-slate-700 focus:border-indigo-500 rounded-full px-6 py-3.5 pr-14 outline-none text-slate-200 placeholder:text-slate-500"
           />
-          <button
-            type="submit"
-            disabled={!inputValue.trim() || isAnalyzing || isEmergency}
-            className="absolute right-2 top-2 bottom-2 my-auto px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg transition-colors flex items-center justify-center cursor-pointer"
-          >
-            <Send size={18} />
+          <button type="submit" disabled={!inputValue.trim() || isAnalyzing || isEmergency} className="absolute right-2 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-800 text-white rounded-full flex items-center justify-center cursor-pointer">
+            <Send size={16} />
           </button>
         </form>
       </div>
     </div>
   );
+};
 
-  const ReportView = ({ msgId }) => {
-    const reportData = messages.find(m => m.id === parseInt(msgId))?.data;
-    const userMsg = messages[messages.findIndex(m => m.id === parseInt(msgId)) - 1]?.text;
+export default function App() {
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('aegis_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
+  const [activeView, setActiveView] = useState('dashboard');
+  const [chatSessionId, setChatSessionId] = useState(Date.now());
+  const [activeReportData, setActiveReportData] = useState(null);
 
-    if (!reportData) return null;
+  const handleLoginSuccess = (userData) => {
+    localStorage.setItem('aegis_user', JSON.stringify(userData));
+    setUser(userData);
+  };
 
-    return (
-      <div className="flex-1 flex flex-col h-full bg-slate-200 p-4 md:p-8 overflow-y-auto items-center print:bg-white print:p-0 print:overflow-visible">
-        <div className="w-full max-w-3xl flex justify-between items-center mb-6 no-print shrink-0">
-          <button onClick={() => setActiveView('chat')} className="text-slate-600 hover:text-slate-900 font-medium flex items-center gap-2 cursor-pointer">
-            <ChevronRight className="rotate-180" size={20} /> Back to Chat
-          </button>
-          <button onClick={generatePDF} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm transition-colors cursor-pointer">
-            <Download size={18} /> Download as PDF
-          </button>
-        </div>
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${API_BASE_URL}/auth/logout`);
+    } catch (e) { console.error(e); }
+    localStorage.removeItem('aegis_user');
+    setUser(null);
+  };
 
-        <div className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-8 md:p-12 border border-slate-300 flex flex-col my-auto sm:my-4 print:shadow-none print:border-none print:p-0 print:m-0 print:w-full print:max-w-none print:rounded-none">
-          <div className="border-b-2 border-slate-800 pb-6 mb-8 flex justify-between items-end">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 tracking-tight">AI Medical Summary</h1>
-              <p className="text-slate-500 mt-1">Generated by DSAI Capstone System</p>
-            </div>
-            <div className="text-right text-sm text-slate-500">
-              <p>Date: {new Date().toLocaleDateString()}</p>
-              <p>Consultation ID: #{reportData.consultationId?.slice(-6) || '10294'}</p>
-            </div>
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-lg font-bold text-slate-900 mb-3 uppercase tracking-wider text-sm border-l-4 border-blue-500 pl-3">1. Patient Reported Symptoms</h2>
-            <div className="bg-slate-50 p-4 rounded-md border border-slate-100">
-              <p className="text-slate-700 italic">"{userMsg}"</p>
-              {reportData.extractedSymptoms && reportData.extractedSymptoms.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {reportData.extractedSymptoms.map(s => (
-                    <span key={s} className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded">NLP Extracted: {s}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-lg font-bold text-slate-900 mb-3 uppercase tracking-wider text-sm border-l-4 border-blue-500 pl-3">2. Differential Diagnosis (ML Predictions)</h2>
-            <table className="w-full border-collapse mb-4">
-              <thead>
-                <tr className="bg-slate-100">
-                  <th className="border border-slate-300 p-2 text-left">Condition</th>
-                  <th className="border border-slate-300 p-2 text-left">Probability</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reportData.predictions && reportData.predictions.length > 0 ? (
-                  reportData.predictions.map((pred, i) => (
-                    <tr key={i}>
-                      <td className={`border border-slate-300 p-2 ${i === 0 ? 'font-medium' : ''}`}>{pred.disease}</td>
-                      <td className={`border border-slate-300 p-2 ${i === 0 ? 'font-bold text-blue-700' : ''}`}>{pred.probability}%</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="2" className="border border-slate-300 p-2 text-slate-500 italic">No specific ML predictions generated</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            {reportData.diseaseDetails?.description && (
-              <p className="text-sm text-slate-600 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                <span className="font-semibold text-blue-900">Database Context: </span>
-                {reportData.diseaseDetails.description}
-              </p>
-            )}
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-lg font-bold text-slate-900 mb-3 uppercase tracking-wider text-sm border-l-4 border-blue-500 pl-3">3. Next Steps & Recommendations</h2>
-            <div className="mb-4">
-              <p className="font-semibold text-slate-800">Suggested Specialist: <span className="font-normal text-slate-700">{reportData.recommendedSpecialist || 'General Practitioner'}</span></p>
-            </div>
-            <p className="font-semibold text-slate-800 mb-2">Care Guidelines & Precautions:</p>
-            <ul className="list-disc pl-5 text-slate-700 space-y-1 text-sm">
-              {reportData.diseaseDetails?.precautions?.map((tip, i) => <li key={`prec-${i}`}>{tip}</li>)}
-              {reportData.careTips?.map((tip, i) => <li key={`tip-${i}`}>{tip}</li>)}
-            </ul>
-          </div>
-
-          <div className="border-t-2 border-red-200 bg-red-50 p-4 rounded-md text-red-900 mt-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="shrink-0 text-red-600" size={24} />
-              <div>
-                <h4 className="font-bold uppercase tracking-wider text-sm mb-1 text-red-700">Medical Disclaimer</h4>
-                <p className="text-xs leading-relaxed">
-                  This report is generated by an AI capstone project for educational purposes only. It is NOT a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  const handleNewConsultation = () => {
+    setChatSessionId(Date.now());
+    setActiveReportData(null);
+    setActiveView('chat');
   };
 
   if (!user) {
-    return <LoginScreen onLoginSuccess={(userData) => setUser(userData)} />;
+    return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
   }
 
   return (
-    <div className="flex h-screen w-full bg-slate-100 font-sans text-slate-900 overflow-hidden">
-      {Sidebar()}
-      <main className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
-        <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden">
-          {activeView === 'chat' ? ChatView() : ReportView({ msgId: activeView.split('-')[1] })}
+    <div className="flex h-screen w-full bg-[#0B1120] text-slate-300 font-sans overflow-hidden">
+      <aside className="w-64 bg-[#111827] border-r border-slate-800 flex flex-col h-full shrink-0 z-20">
+        <div className="h-16 flex items-center gap-3 px-6 border-b border-slate-800 shrink-0">
+          <Activity className="text-indigo-500" size={24} />
+          <span className="text-xl font-bold text-white tracking-tight">Aegis <span className="text-indigo-500">AI</span></span>
         </div>
 
-        <footer className="h-8 bg-slate-900 flex items-center justify-center px-4 shrink-0 z-30 no-print">
-          <p className="text-xs text-slate-400 flex items-center gap-2">
-            <AlertTriangle size={12} className="text-yellow-500" />
-            Educational purposes only. NOT professional medical advice.
-          </p>
-        </footer>
+        <nav className="p-4 flex-1 overflow-y-auto space-y-1.5">
+          <button onClick={handleNewConsultation} className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-xl transition-colors mb-6 font-semibold shadow-lg shadow-indigo-900/20 cursor-pointer">
+            <Plus size={18} /> New Consultation
+          </button>
+
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-3">Platform</p>
+          <button onClick={() => setActiveView('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-medium ${activeView === 'dashboard' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}>
+            <LayoutDashboard size={18} /> Dashboard
+          </button>
+          <button onClick={() => setActiveView('chat')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-medium ${activeView === 'chat' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}>
+            <MessageSquare size={18} /> Symptom Checker
+          </button>
+          <button onClick={() => setActiveView('history')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-medium ${activeView === 'history' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}>
+            <History size={18} /> Consultations
+          </button>
+
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-3 mt-6">Health Tools</p>
+          <button onClick={() => setActiveView('diet')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-medium ${activeView === 'diet' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}>
+            <Apple size={18} /> Diet Planner
+          </button>
+          <button onClick={() => setActiveView('bmi')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer font-medium ${activeView === 'bmi' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}>
+            <Calculator size={18} /> BMI Index
+          </button>
+        </nav>
+
+        <div className="p-4 border-t border-slate-800 bg-[#0B1120]/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="w-9 h-9 bg-indigo-900/50 rounded-full flex items-center justify-center shrink-0 border border-indigo-500/30">
+                <User size={16} className="text-indigo-300" />
+              </div>
+              <div className="truncate">
+                <p className="text-sm text-slate-200 font-medium truncate">{user.username}</p>
+                <p className="text-[10px] text-emerald-400 uppercase tracking-wider font-bold">Online</p>
+              </div>
+            </div>
+            <button onClick={handleLogout} className="text-slate-500 hover:text-red-400 p-2 transition-colors cursor-pointer bg-slate-800/50 rounded-lg">
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main className="flex-1 flex flex-1 flex-col relative overflow-hidden bg-grid-pattern">
+        {activeView !== 'dashboard' && (
+          <header className="h-14 bg-[#111827]/80 backdrop-blur-md border-b border-slate-800 flex items-center px-6 shrink-0 z-10 no-print">
+            <button onClick={() => setActiveView('dashboard')} className="flex items-center gap-2 text-slate-400 hover:text-indigo-400 transition-colors text-sm font-medium cursor-pointer">
+              <ChevronLeft size={18} /> Back to Dashboard
+            </button>
+          </header>
+        )}
+
+        <div className="flex-1 overflow-hidden relative">
+          {activeView === 'dashboard' && <DashboardView setActiveView={setActiveView} />}
+          {activeView === 'chat' && !activeReportData && <ChatView key={chatSessionId} user={user} onOpenReport={(data, symptoms) => { setActiveReportData({ data, symptoms }); setActiveView('report'); }} />}
+          {activeView === 'report' && activeReportData && <ReportView reportData={activeReportData.data} userMsg={activeReportData.symptoms} onBack={() => setActiveView('chat')} />}
+          {activeView === 'history' && <HistoryView />}
+          {activeView === 'diet' && <DietPlannerView />}
+          {activeView === 'bmi' && <BmiCalculatorView />}
+        </div>
       </main>
     </div>
   );
