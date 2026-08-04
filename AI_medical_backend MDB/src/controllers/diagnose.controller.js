@@ -3,8 +3,9 @@ import { checkRedFlags } from "../services/triage.service.js";
 import {
   analyzeConversation,
   getPredictions,
+  getAIPredictionsFallback,
   getCareInsights,
-  generateDietPlan // <-- ADDED THIS IMPORT
+  generateDietPlan
 } from "../services/ai.service.js";
 import { getDiseaseDetails } from "../services/database.js";
 import { ApiError } from "../utils/api-error.js";
@@ -118,7 +119,11 @@ export const processDiagnosis = asyncHandler(async (req, res) => {
 
   // ── Step 3: ML disease predictions ───────────────────────────────────
 
-  const predictions = await getPredictions(extractedSymptoms);
+  let predictions = await getPredictions(extractedSymptoms);
+
+  if (!predictions || !Array.isArray(predictions) || predictions.length === 0) {
+    predictions = await getAIPredictionsFallback(extractedSymptoms);
+  }
 
   // Determine the top predicted disease
   const topPrediction =
@@ -130,15 +135,23 @@ export const processDiagnosis = asyncHandler(async (req, res) => {
 
   // ── Step 4: Care insights & Official DB Details ────────────────────────
 
-  let specialist = null;
-  let careTips = [];
+  let specialist = "General Practitioner";
+  let careTips = [
+    "Rest and drink plenty of fluids.",
+    "Monitor your symptoms closely.",
+    "Seek medical advice if symptoms persist or worsen."
+  ];
   let officialDiseaseInfo = null;
 
   if (topPrediction) {
-    // 1. Get dynamic insights from Gemini
+    // 1. Get dynamic insights from Groq
     const insights = await getCareInsights(topPrediction.disease);
-    specialist = insights.specialist || null;
-    careTips = insights.careTips || [];
+    if (insights) {
+      if (insights.specialist) specialist = insights.specialist;
+      if (insights.careTips && Array.isArray(insights.careTips) && insights.careTips.length > 0) {
+        careTips = insights.careTips;
+      }
+    }
 
     // 2. Get official description & precautions from MongoDB (Seeded CSV data)
     officialDiseaseInfo = await getDiseaseDetails(topPrediction.disease);
