@@ -39,32 +39,38 @@ const parseJsonFromResponse = (text) => {
 // ─── public API ───────────────────────────────────────────────────────
 
 /**
- * Uses Groq (LLaMA) to extract structured symptom keywords from free-form text.
- *
- * @param {string} text - The patient's raw symptom description.
- * @returns {Promise<string[]>} Array of standardised medical symptom terms.
- *
- * @example
- *   await extractSymptoms("I've had a splitting headache and I keep throwing up");
- *   // → ["headache", "vomiting"]
+ * Uses Groq to analyze the conversation history.
+ * Decides whether to ask a clarifying question or extract final symptoms.
+ * 
+ * @param {Array} messages - Array of { role: 'user'|'assistant', content: '...' }
  */
-export const extractSymptoms = async (text) => {
+export const analyzeConversation = async (messages) => {
   const client = getGroqClient();
+
+  const systemPrompt = `You are an expert AI Medical Assistant conducting a triage interview.
+Your goal is to gather comprehensive symptom details from the patient before running a differential diagnosis.
+
+RULES:
+1. If the user's symptoms are vague or incomplete, ask ONE relevant, conversational follow-up question (e.g., asking about severity, duration, or accompanying symptoms).
+2. Ask a MAXIMUM of 3 questions throughout the entire conversation.
+3. If you have enough detailed information to make a prediction, OR if you have already asked 3 questions, you must extract the symptoms into standardized medical terms.
+4. You MUST respond ONLY with a JSON object in one of these two exact formats (no markdown, no extra text):
+
+Format A (If you need more info):
+{ "type": "question", "text": "Your conversational follow-up question here." }
+
+Format B (If ready for diagnosis):
+{ "type": "diagnosis", "symptoms": ["headache", "nausea", "fever"] }`;
+
+  const apiMessages = [
+    { role: "system", content: systemPrompt },
+    ...messages
+  ];
 
   const chatCompletion = await client.chat.completions.create({
     model: GROQ_MODEL,
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a medical NLP assistant. Extract all symptoms from patient descriptions and map them to standard medical terms. Return ONLY a JSON array of strings — no explanation, no markdown, no extra text.",
-      },
-      {
-        role: "user",
-        content: `Extract symptoms from the following patient description.\n\nExample output: ["headache", "vomiting", "fever"]\n\nPatient description:\n"${text}"`,
-      },
-    ],
-    temperature: 0.3,
+    messages: apiMessages,
+    temperature: 0.2, // Low temperature for consistent JSON formatting
     max_tokens: 256,
   });
 
