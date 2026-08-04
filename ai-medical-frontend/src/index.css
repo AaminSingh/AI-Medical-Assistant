@@ -1,17 +1,1 @@
-@import "tailwindcss";
-
-@media print {
-  .no-print {
-    display: none !important;
-  }
-
-  body {
-    background: white !important;
-    color: black !important;
-  }
-
-  @page {
-    margin: 12mm;
-    size: auto;
-  }
-}
+@import "./components/index.css";
