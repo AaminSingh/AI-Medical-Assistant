@@ -70,7 +70,7 @@ Format B (If ready for diagnosis):
   const chatCompletion = await client.chat.completions.create({
     model: GROQ_MODEL,
     messages: apiMessages,
-    temperature: 0.2, // Low temperature for consistent JSON formatting
+    temperature: 0.2,
     max_tokens: 256,
   });
 
@@ -84,7 +84,6 @@ Format B (If ready for diagnosis):
  *
  * @param {string[]} symptomsArray - Standardised symptom keywords.
  * @returns {Promise<Array<{disease: string, probability: number}>>}
- *          Predicted diseases with probability scores.
  */
 export const getPredictions = async (symptomsArray) => {
   try {
@@ -100,36 +99,92 @@ export const getPredictions = async (symptomsArray) => {
 };
 
 /**
- * Uses Groq (LLaMA) to recommend a specialist and generate care tips for a
- * predicted disease.
+ * Uses Groq (LLaMA) to recommend a specialist and generate care tips for a predicted disease.
  *
  * @param {string} disease - The predicted disease name.
  * @returns {Promise<{specialist: string, careTips: string[]}>}
- *
- * @example
- *   await getCareInsights("Migraine");
- *   // → { specialist: "Neurologist", careTips: ["Rest in a dark room", ...] }
  */
 export const getCareInsights = async (disease) => {
-  const client = getGroqClient();
+  try {
+    const client = getGroqClient();
 
-  const chatCompletion = await client.chat.completions.create({
-    model: GROQ_MODEL,
-    messages: [
-      {
-        role: "system",
-        content:
-          'You are a medical advisor AI. Provide specialist recommendations and care tips. Return ONLY a JSON object in this exact format — no explanation, no markdown, no extra text: { "specialist": "Specialist Name", "careTips": ["Tip 1", "Tip 2", "Tip 3"] }',
-      },
-      {
-        role: "user",
-        content: `For the disease "${disease}", provide:\n1. The most appropriate medical specialist to consult.\n2. Exactly 3 general care tips the patient can follow at home.`,
-      },
-    ],
-    temperature: 0.3,
-    max_tokens: 256,
-  });
+    const chatCompletion = await client.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: [
+        {
+          role: "system",
+          content:
+            'You are a medical advisor AI. Provide specialist recommendations and care tips. Return ONLY a JSON object in this exact format — no explanation, no markdown, no extra text: { "specialist": "Specialist Name", "careTips": ["Tip 1", "Tip 2", "Tip 3"] }',
+        },
+        {
+          role: "user",
+          content: `For the disease "${disease}", provide:\n1. The most appropriate medical specialist to consult.\n2. Exactly 3 general care tips the patient can follow at home.`,
+        },
+      ],
+      temperature: 0.3,
+      max_tokens: 256,
+    });
 
-  const response = chatCompletion.choices[0].message.content;
-  return parseJsonFromResponse(response);
+    const response = chatCompletion.choices[0].message.content;
+    return parseJsonFromResponse(response);
+  } catch (error) {
+    console.error("Care Insights Error:", error.message);
+    return { specialist: "General Practitioner", careTips: ["Rest", "Stay hydrated", "Consult a doctor if symptoms persist."] };
+  }
+};
+
+/**
+ * Uses Groq (LLaMA) to generate a customized diet plan and macronutrient breakdown.
+ *
+ * @param {Object} demographics - User health data (weight, height, goal, preference, etc.)
+ * @returns {Promise<Object>} Structured JSON response containing the diet plan.
+ */
+export const generateDietPlan = async (demographics) => {
+  try {
+    const client = getGroqClient();
+
+    const prompt = `You are an expert clinical AI nutritionist. 
+Based on the following patient demographics, calculate their estimated daily caloric needs, provide a macronutrient split (Proteins, Carbs, Fats), and generate a 1-day meal plan.
+
+Patient Data:
+- Age: ${demographics.age || 'Unknown'}
+- Gender: ${demographics.gender || 'Unknown'}
+- Weight: ${demographics.weight ? demographics.weight + ' kg' : 'Unknown'}
+- Height: ${demographics.height ? demographics.height + ' cm' : 'Unknown'}
+- Fitness Goal: ${demographics.goal || 'General Health'}
+- Activity Level: ${demographics.activity || 'Moderate'}
+- Diet Preference: ${demographics.preference || 'No preference'}
+- Allergies/Conditions: ${demographics.allergies || 'None'}
+
+Return ONLY a JSON object in this exact format (no markdown, no explanations):
+{
+  "calories": "2200 kcal",
+  "protein": "150g",
+  "carbs": "200g",
+  "fats": "70g",
+  "meals": [
+    { "name": "Breakfast", "suggestion": "Meal description here" },
+    { "name": "Lunch", "suggestion": "Meal description here" },
+    { "name": "Dinner", "suggestion": "Meal description here" },
+    { "name": "Snack", "suggestion": "Meal description here" }
+  ],
+  "advice": "One sentence of general nutritional advice."
+}`;
+
+    const chatCompletion = await client.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: [
+        { role: "system", content: "You are a precise JSON-generating medical AI. Return only valid JSON." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.3,
+      max_tokens: 512,
+    });
+
+    const response = chatCompletion.choices[0].message.content;
+    return parseJsonFromResponse(response);
+  } catch (error) {
+    console.error("Groq Diet Planner Error:", error.message);
+    throw new Error("Failed to generate diet plan from AI.");
+  }
 };
