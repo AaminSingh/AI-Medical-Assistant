@@ -7,7 +7,18 @@ import { Consultation } from "../models/consultation.models.js";
  */
 export const getDiseaseDetails = async (diseaseName) => {
     try {
-        const disease = await Disease.findOne({ name: diseaseName });
+        if (!diseaseName) return null;
+        let disease = await Disease.findOne({ name: diseaseName });
+        if (!disease) {
+            const escaped = diseaseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            disease = await Disease.findOne({ name: { $regex: new RegExp(`^${escaped}$`, 'i') } });
+        }
+        if (!disease) {
+            const firstWord = diseaseName.split(' ')[0];
+            if (firstWord && firstWord.length > 2) {
+                disease = await Disease.findOne({ name: { $regex: new RegExp(firstWord, 'i') } });
+            }
+        }
         return disease; // Returns { name, description, precautions: [] }
     } catch (error) {
         console.error("Database Error:", error);
