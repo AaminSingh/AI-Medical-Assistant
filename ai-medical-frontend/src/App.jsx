@@ -6,8 +6,8 @@ import {
   ShieldAlert, Stethoscope, Lock, Mail, Loader2, Calculator, Apple, LogOut, LayoutDashboard
 } from 'lucide-react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend
+  AreaChart, Area, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
 axios.defaults.withCredentials = true;
@@ -47,8 +47,13 @@ const LoginScreen = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B1120] bg-grid-pattern flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-[#111827] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+    <div className="min-h-screen bg-[#0B1120] bg-grid-pattern flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Soft light watermark background image */}
+      <div 
+        className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.10] mix-blend-screen z-0 filter brightness-110"
+        style={{ backgroundImage: `url('/backgroundimage.png')` }}
+      />
+      <div className="max-w-md w-full bg-[#111827]/90 backdrop-blur-md border border-slate-800 rounded-2xl shadow-2xl overflow-hidden relative z-10">
         <div className="p-8 text-center border-b border-slate-800">
           <div className="w-16 h-16 bg-indigo-600/20 border border-indigo-500/30 rounded-xl flex items-center justify-center mx-auto mb-4">
             <Activity size={32} className="text-indigo-400" />
@@ -121,34 +126,85 @@ const DashboardView = ({ setActiveView }) => {
   ];
 
   const cohortData = [
-    { name: 'Malaria', value: 16, color: '#3b82f6' },
-    { name: 'Typhoid', value: 15, color: '#10b981' },
-    { name: 'Dengue', value: 15, color: '#f59e0b' },
-    { name: 'Jaundice', value: 14, color: '#ef4444' },
-    { name: 'Diabetes', value: 13, color: '#8b5cf6' },
-    { name: 'Hypertension', value: 17, color: '#ec4899' },
-    { name: 'Others', value: 10, color: '#64748b' },
+    { name: 'Malaria', value: 16 },
+    { name: 'Typhoid', value: 15 },
+    { name: 'Dengue', value: 15 },
+    { name: 'Jaundice', value: 14 },
+    { name: 'Diabetes', value: 13 },
+    { name: 'Hypertension', value: 17 },
+    { name: 'Others', value: 10 },
   ];
 
   return (
-    <div className="p-8 h-full overflow-y-auto scrollbar-dark">
-      <div className="mb-10 bg-gradient-to-r from-indigo-900/40 to-[#111827] border border-indigo-500/20 p-8 rounded-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
-        <div className="relative z-10 max-w-3xl">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold tracking-wide uppercase mb-4 border border-indigo-500/30">
-            <Activity size={14} /> AI Powered Healthcare
-          </span>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-            Next-Generation <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Medical Diagnosis</span>
+    <div className="p-8 h-full overflow-y-auto scrollbar-dark relative z-10">
+      {/* Expanded About Section */}
+      <div className="mb-10 bg-gradient-to-br from-slate-900/90 via-indigo-950/40 to-[#111827] border border-indigo-500/30 p-8 md:p-10 rounded-2xl relative overflow-hidden shadow-2xl backdrop-blur-md">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-1/3 -mb-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold tracking-wide uppercase border border-indigo-500/30 shadow-sm">
+              <Activity size={14} className="animate-pulse text-indigo-400" /> AI-Powered Clinical Intelligence
+            </span>
+          </div>
+
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-5 tracking-tight leading-tight">
+            Next-Generation <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-300 to-teal-300">Medical Diagnosis Portal</span>
           </h1>
-          <p className="text-slate-300 text-lg mb-8 leading-relaxed">
-            Get AI-powered symptom analysis, clinical NLP processing, and actionable specialist recommendations instantly.
-          </p>
+
+          <div className="max-w-4xl text-slate-300 text-base md:text-lg mb-8 leading-relaxed space-y-3">
+            <p>
+              <strong className="text-white font-semibold">Aegis AI Medical Assistant</strong> is a next-generation clinical decision support system that integrates state-of-the-art Natural Language Processing (NLP) with Ensemble Machine Learning classification models to deliver real-time diagnostic insights, emergency triage, and specialist medical recommendations.
+            </p>
+            <p className="text-slate-400 text-sm md:text-base">
+              Engineered for seamless clinical triage, Aegis AI evaluates complex user symptom descriptions, calculates accurate differential disease probabilities across 40+ disease categories, alerts users to red-flag emergencies, and generates complete, downloadable PDF medical summaries.
+            </p>
+          </div>
+
+          {/* Key Features Breakdown Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="bg-[#111827]/80 border border-slate-800 p-5 rounded-xl hover:border-indigo-500/40 transition-colors shadow-md">
+              <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-3 text-indigo-400">
+                <MessageSquare size={20} />
+              </div>
+              <h4 className="text-white font-semibold text-base mb-1">Clinical NLP Checker</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">Interactive symptom dialogue probing symptoms & identifying differential medical conditions.</p>
+            </div>
+
+            <div className="bg-[#111827]/80 border border-slate-800 p-5 rounded-xl hover:border-indigo-500/40 transition-colors shadow-md">
+              <div className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-3 text-cyan-400">
+                <Activity size={20} />
+              </div>
+              <h4 className="text-white font-semibold text-base mb-1">98.6% Accuracy ML Engine</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">High-precision ensemble predictive models including XGBoost, Random Forest, & Naive Bayes.</p>
+            </div>
+
+            <div className="bg-[#111827]/80 border border-slate-800 p-5 rounded-xl hover:border-indigo-500/40 transition-colors shadow-md">
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-3 text-emerald-400">
+                <Apple size={20} />
+              </div>
+              <h4 className="text-white font-semibold text-base mb-1">Diet & BMI Tools</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">Targeted health tools including custom dietary planner and instant Body Mass Index calculator.</p>
+            </div>
+
+            <div className="bg-[#111827]/80 border border-slate-800 p-5 rounded-xl hover:border-indigo-500/40 transition-colors shadow-md">
+              <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-3 text-purple-400">
+                <FileText size={20} />
+              </div>
+              <h4 className="text-white font-semibold text-base mb-1">Clinical PDF Reports</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">One-click generation of structured medical summary reports for physician consultations.</p>
+            </div>
+          </div>
+
           <div className="flex flex-wrap gap-4">
-            <button onClick={() => setActiveView('chat')} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2 cursor-pointer">
+            <button onClick={() => setActiveView('chat')} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3.5 rounded-xl font-medium transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2 cursor-pointer">
               Start Diagnosis <ChevronRight size={18} />
             </button>
-            <button onClick={() => setActiveView('history')} className="bg-[#1F2937] hover:bg-slate-700 text-white px-6 py-3 rounded-xl font-medium border border-slate-600 transition-all flex items-center gap-2 cursor-pointer">
+            <button onClick={() => setActiveView('diet')} className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-6 py-3.5 rounded-xl font-medium border border-slate-700 transition-all flex items-center gap-2 cursor-pointer">
+              Explore Health Tools
+            </button>
+            <button onClick={() => setActiveView('history')} className="bg-[#1F2937] hover:bg-slate-700 text-white px-6 py-3.5 rounded-xl font-medium border border-slate-600 transition-all flex items-center gap-2 cursor-pointer">
               View History
             </button>
           </div>
@@ -156,36 +212,43 @@ const DashboardView = ({ setActiveView }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div className="bg-[#111827] border border-slate-800 p-6 rounded-xl shadow-lg">
-          <h3 className="text-lg font-semibold text-slate-200 mb-6">Algorithm Performance Evaluation</h3>
+        {/* Changed Chart 1: AreaChart (replaced BarChart) */}
+        <div className="bg-[#111827]/90 backdrop-blur-md border border-slate-800 p-6 rounded-xl shadow-lg">
+          <h3 className="text-lg font-semibold text-slate-200 mb-1">Algorithm Performance Evaluation</h3>
+          <p className="text-sm text-slate-400 mb-6">Comparative model accuracy curves across validation cohorts.</p>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={accuracyData} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
+              <AreaChart data={accuracyData} margin={{ top: 10, right: 30, left: -20, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="accuracyAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.7}/>
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0}/>
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                 <XAxis dataKey="name" stroke="#94a3b8" tick={{ fontSize: 12 }} />
                 <YAxis stroke="#94a3b8" domain={[80, 100]} tick={{ fontSize: 12 }} />
-                <Tooltip cursor={{ fill: '#1e293b' }} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc', borderRadius: '8px' }} />
-                <Bar dataKey="Accuracy" fill="#6366f1" radius={[4, 4, 0, 0]} />
-              </BarChart>
+                <Tooltip cursor={{ stroke: '#6366f1', strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc', borderRadius: '8px' }} />
+                <Area type="monotone" dataKey="Accuracy" stroke="#818cf8" strokeWidth={3} fillOpacity={1} fill="url(#accuracyAreaGradient)" dot={{ r: 6, fill: '#6366f1', strokeWidth: 2, stroke: '#ffffff' }} activeDot={{ r: 8, fill: '#38bdf8' }} />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-[#111827] border border-slate-800 p-6 rounded-xl shadow-lg flex flex-col">
-          <h3 className="text-lg font-semibold text-slate-200 mb-2">Dataset Diagnostic Cohorts</h3>
-          <p className="text-sm text-slate-400 mb-6">Overview of disease classes mapped inside training dataset.</p>
+        {/* Changed Chart 2: RadarChart (replaced PieChart) */}
+        <div className="bg-[#111827]/90 backdrop-blur-md border border-slate-800 p-6 rounded-xl shadow-lg flex flex-col">
+          <h3 className="text-lg font-semibold text-slate-200 mb-1">Dataset Diagnostic Cohorts</h3>
+          <p className="text-sm text-slate-400 mb-4">Multi-axis distribution of mapped disease classes inside training set.</p>
           <div className="flex-1 flex items-center justify-center">
             <div className="h-64 w-full max-w-md">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={cohortData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                    {cohortData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
+                <RadarChart cx="50%" cy="50%" outerRadius="75%" data={cohortData}>
+                  <PolarGrid stroke="#334155" />
+                  <PolarAngleAxis dataKey="name" stroke="#94a3b8" tick={{ fontSize: 11 }} />
+                  <PolarRadiusAxis angle={30} domain={[0, 20]} stroke="#475569" tick={{ fontSize: 10 }} />
+                  <Radar name="Cohort Distribution (%)" dataKey="value" stroke="#38bdf8" fill="#6366f1" fillOpacity={0.5} />
                   <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc', borderRadius: '8px' }} />
-                  <Legend />
-                </PieChart>
+                </RadarChart>
               </ResponsiveContainer>
             </div>
           </div>
@@ -252,7 +315,7 @@ const BmiCalculatorView = () => {
 };
 
 const DietPlannerView = () => {
-  const [formData, setFormData] = useState({ age: '', gender: 'Male', weight: '', height: '', goal: 'General Health', preference: 'Veg', allergies: '' });
+  const [formData, setFormData] = useState({ age: '', gender: 'Male', weight: '', height: '', goal: 'Weight Loss', preference: 'Veg', allergies: '' });
   const [loading, setLoading] = useState(false);
   const [dietPlan, setDietPlan] = useState(null);
 
@@ -302,6 +365,24 @@ const DietPlannerView = () => {
                 <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">Gender</label>
                 <select value={formData.gender} onChange={e => setFormData({ ...formData, gender: e.target.value })} className="w-full bg-[#1F2937] text-white px-4 py-2.5 rounded-xl border border-slate-700 outline-none">
                   <option>Male</option><option>Female</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">Goal</label>
+                <select value={formData.goal} onChange={e => setFormData({ ...formData, goal: e.target.value })} className="w-full bg-[#1F2937] text-white px-4 py-2.5 rounded-xl border border-slate-700 outline-none">
+                  <option value="Weight Loss">Weight Loss</option>
+                  <option value="Weight Gain">Weight Gain</option>
+                  <option value="Maintain Weight">Maintain Weight</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">Diet Preference</label>
+                <select value={formData.preference} onChange={e => setFormData({ ...formData, preference: e.target.value })} className="w-full bg-[#1F2937] text-white px-4 py-2.5 rounded-xl border border-slate-700 outline-none">
+                  <option value="Veg">Veg</option>
+                  <option value="Non Veg">Non Veg</option>
+                  <option value="Vegan">Vegan</option>
                 </select>
               </div>
             </div>
@@ -681,7 +762,12 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-[#0B1120] text-slate-300 font-sans overflow-hidden">
+    <div className="flex h-screen w-full bg-[#0B1120] text-slate-300 font-sans overflow-hidden relative">
+      {/* Soft light watermark background image */}
+      <div 
+        className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.10] mix-blend-screen z-0 filter brightness-110"
+        style={{ backgroundImage: `url('/backgroundimage.png')` }}
+      />
       <aside className="w-64 bg-[#111827] border-r border-slate-800 flex flex-col h-full shrink-0 z-20">
         <div className="h-16 flex items-center gap-3 px-6 border-b border-slate-800 shrink-0">
           <Activity className="text-indigo-500" size={24} />
