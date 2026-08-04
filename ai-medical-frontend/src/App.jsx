@@ -11,7 +11,7 @@ import {
 } from 'recharts';
 
 axios.defaults.withCredentials = true;
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = 'https://ai-medical-assistant-khvm.onrender.com/api/v1';
 
 const LoginScreen = ({ onLoginSuccess }) => {
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -49,7 +49,7 @@ const LoginScreen = ({ onLoginSuccess }) => {
   return (
     <div className="min-h-screen bg-[#0B1120] bg-grid-pattern flex items-center justify-center p-4 relative overflow-hidden">
       {/* Soft light watermark background image */}
-      <div 
+      <div
         className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.10] mix-blend-screen z-0 filter brightness-110"
         style={{ backgroundImage: `url('/backgroundimage.png')` }}
       />
@@ -221,8 +221,8 @@ const DashboardView = ({ setActiveView }) => {
               <AreaChart data={accuracyData} margin={{ top: 10, right: 30, left: -20, bottom: 5 }}>
                 <defs>
                   <linearGradient id="accuracyAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.7}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0}/>
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.7} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
@@ -640,8 +640,8 @@ const ChatView = ({ user, onOpenReport }) => {
             )}
 
             <div className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-5 shadow-sm ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-sm'
-                : msg.type === 'emergency' ? 'bg-[#1e293b] text-slate-200 border border-slate-700 rounded-tl-sm'
-                  : 'bg-[#1e293b] text-slate-200 border border-slate-700 rounded-tl-sm'
+              : msg.type === 'emergency' ? 'bg-[#1e293b] text-slate-200 border border-slate-700 rounded-tl-sm'
+                : 'bg-[#1e293b] text-slate-200 border border-slate-700 rounded-tl-sm'
               }`}>
               <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{msg.content}</p>
 
@@ -764,7 +764,7 @@ export default function App() {
   return (
     <div className="flex h-screen w-full bg-[#0B1120] text-slate-300 font-sans overflow-hidden relative">
       {/* Soft light watermark background image */}
-      <div 
+      <div
         className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.10] mix-blend-screen z-0 filter brightness-110"
         style={{ backgroundImage: `url('/backgroundimage.png')` }}
       />
