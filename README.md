@@ -2,6 +2,8 @@
 
 Aegis AI is an advanced, multi-tier AI-powered medical diagnosis and patient triage web platform. It combines clinical Machine Learning (Random Forest classification), Large Language Models (Groq LLaMA 3.3 70B), and full-stack web engineering to provide instant, interactive symptom triage, differential diagnosis predictions, specialist recommendations, personalized diet plans, and exportable PDF medical summaries.
 
+> 🌐 **Live Demo**: [https://aegis-frontend-bumj.onrender.com](https://aegis-frontend-bumj.onrender.com)
+
 ---
 
 ## 🚀 Key Features
