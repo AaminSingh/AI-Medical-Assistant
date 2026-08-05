@@ -40,7 +40,7 @@ app.use("/api/v1/diagnose", diagnoseRouter);
 // ─── Health check ─────────────────────────────────────────────────────
 
 app.get("/", (_req, res) => {
-  res.json({ status: "ok", message: "AI Medical Backend is running 🚀" });
+  res.json({ status: "ok", message: "PulseCare AI Medical Backend is running 🚀" });
 });
 
 // ─── Global error handler ─────────────────────────────────────────────
