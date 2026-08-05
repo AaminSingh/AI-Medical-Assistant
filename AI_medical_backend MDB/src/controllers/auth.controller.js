@@ -26,19 +26,26 @@ export const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Username, email, and password are required");
   }
 
-  // Check for existing user
-  const existingUser = await User.findOne({
-    $or: [{ email }, { username: username.toLowerCase() }],
-  });
+  // Strong password check (min 8 chars, letters, numbers, special symbol)
+  const strongPasswordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+  if (!strongPasswordRegex.test(password)) {
+    throw new ApiError(
+      400,
+      "Password must be at least 8 characters long and include letters, numbers, and a special character (e.g., !@#$%^&*)."
+    );
+  }
+
+  // Check for existing user by EMAIL ONLY (prioritize unique email)
+  const existingUser = await User.findOne({ email: email.toLowerCase() });
 
   if (existingUser) {
-    throw new ApiError(409, "User with this email or username already exists");
+    throw new ApiError(409, "User with this email address already exists");
   }
 
   // Create user (password is hashed by the pre-save hook)
   const user = await User.create({
-    username,
-    email,
+    username: username.trim(),
+    email: email.toLowerCase().trim(),
     password,
     fullName: fullName || "",
   });
