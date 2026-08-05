@@ -1,6 +1,6 @@
-# 🩺 Aegis AI — Next-Generation AI Medical Assistant & Triage Platform
+# 🩺 PulseCare AI — Next-Generation AI Medical Assistant & Triage Platform
 
-Aegis AI is an advanced, multi-tier AI-powered medical diagnosis and patient triage web platform. It combines clinical Machine Learning (Random Forest classification), Large Language Models (Groq LLaMA 3.3 70B), and full-stack web engineering to provide instant, interactive symptom triage, differential diagnosis predictions, specialist recommendations, personalized diet plans, and exportable PDF medical summaries.
+PulseCare AI is an advanced, multi-tier AI-powered medical diagnosis and patient triage web platform. It combines clinical Machine Learning (Random Forest classification), Large Language Models (Groq LLaMA 3.3 70B), and full-stack web engineering to provide instant, interactive symptom triage, differential diagnosis predictions, specialist recommendations, personalized diet plans, and exportable PDF medical summaries.
 
 > 🌐 **Live Demo**: [https://aegis-frontend-bumj.onrender.com](https://aegis-frontend-bumj.onrender.com)
 
@@ -23,7 +23,7 @@ Aegis AI is an advanced, multi-tier AI-powered medical diagnosis and patient tri
 
 ## 🏗️ System Architecture
 
-Aegis AI is built on a decoupled, 3-tier microservices architecture:
+PulseCare AI is built on a decoupled, 3-tier microservices architecture:
 
 ```
 ┌─────────────────────────┐      HTTP / JSON      ┌──────────────────────────────┐
@@ -138,4 +138,4 @@ npm run dev
 
 ## ⚠️ Medical Disclaimer
 
-*Aegis AI is built for educational and demonstration purposes only as part of an AI capstone project. It is **NOT** a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider for any medical concerns.*
+*PulseCare AI is built for educational and demonstration purposes only as part of an AI capstone project. It is **NOT** a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider for any medical concerns.*
