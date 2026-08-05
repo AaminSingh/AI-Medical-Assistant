@@ -124,6 +124,16 @@ const LoginScreen = ({ onLoginSuccess, currentTheme, onSelectTheme }) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    if (!isLoginMode) {
+      const strongPasswordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+      if (!strongPasswordRegex.test(password)) {
+        setLoading(false);
+        setError('Password must be at least 8 characters long and include letters, numbers, and a special character (e.g., !@#$%^&*).');
+        return;
+      }
+    }
+
     try {
       const endpoint = isLoginMode ? '/auth/login' : '/auth/register';
       const payload = isLoginMode ? { email, password } : { email, password, username, fullName };
@@ -199,6 +209,11 @@ const LoginScreen = ({ onLoginSuccess, currentTheme, onSelectTheme }) => {
                 <Lock className="absolute left-3 top-3" size={16} style={{ color: 'var(--text-muted)' }} />
                 <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full pl-9 pr-4 py-2 text-sm border rounded-xl outline-none transition-all" style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }} required />
               </div>
+              {!isLoginMode && (
+                <p className="text-[11px] mt-1.5 font-medium" style={{ color: 'var(--text-muted)' }}>
+                  Password requirement: min 8 chars, letters, numbers, & a special symbol.
+                </p>
+              )}
             </div>
             <button type="submit" disabled={loading} className="w-full text-white font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer shadow-md" style={{ backgroundColor: 'var(--accent-primary)' }}>
               {loading ? <Loader2 size={18} className="animate-spin" /> : (isLoginMode ? 'Sign In to Portal' : 'Create Account')}
