@@ -4,7 +4,8 @@ import {
   Activity, MessageSquare, History, FileText, AlertTriangle,
   Send, Download, User, Bot, Plus, ChevronRight, ChevronLeft,
   ShieldAlert, Stethoscope, Lock, Mail, Loader2, Calculator, Apple, LogOut,
-  LayoutDashboard, HeartPulse, Palette, Check, Sparkles, ShieldCheck, Cpu
+  LayoutDashboard, HeartPulse, Palette, Check, Sparkles, ShieldCheck, Cpu,
+  Menu, X
 } from 'lucide-react';
 import {
   AreaChart, Area, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -512,7 +513,7 @@ const DietPlannerView = () => {
           )}
           {dietPlan && !loading && (
             <div className="space-y-5">
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-3 rounded-xl border text-center" style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color)' }}>
                   <p className="text-[11px] font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Calories</p>
                   <p className="text-lg font-bold" style={{ color: 'var(--accent-primary)' }}>{dietPlan.calories}</p>
@@ -911,6 +912,7 @@ export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
   const [chatSessionId, setChatSessionId] = useState(Date.now());
   const [activeReportData, setActiveReportData] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -931,10 +933,16 @@ export default function App() {
     setUser(null);
   };
 
+  const handleNavigate = (viewName) => {
+    setActiveView(viewName);
+    setIsMobileMenuOpen(false);
+  };
+
   const handleNewConsultation = () => {
     setChatSessionId(Date.now());
     setActiveReportData(null);
     setActiveView('chat');
+    setIsMobileMenuOpen(false);
   };
 
   if (!user) {
@@ -943,13 +951,34 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-full font-sans overflow-hidden relative" style={{ backgroundColor: 'var(--bg-app)', color: 'var(--text-main)' }}>
+      {/* Mobile Drawer Overlay Backdrop */}
+      {isMobileMenuOpen && (
+        <div
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity"
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="w-64 border-r flex flex-col h-full shrink-0 z-20 transition-colors" style={{ backgroundColor: 'var(--bg-sidebar)', borderColor: 'var(--border-color)' }}>
+      <aside
+        className={`w-64 border-r flex flex-col h-full shrink-0 z-40 transition-transform duration-300 ease-in-out fixed md:static inset-y-0 left-0 ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+        style={{ backgroundColor: 'var(--bg-sidebar)', borderColor: 'var(--border-color)' }}
+      >
         <div className="h-16 flex items-center justify-between px-5 border-b shrink-0" style={{ borderColor: 'var(--border-color)' }}>
           <div className="flex items-center gap-2.5">
             <HeartPulse style={{ color: 'var(--accent-primary)' }} size={22} />
             <span className="text-lg font-extrabold tracking-tight" style={{ color: 'var(--text-main)' }}>PulseCare <span style={{ color: 'var(--accent-primary)' }}>AI</span></span>
           </div>
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="md:hidden p-1.5 rounded-lg hover:bg-black/5 cursor-pointer"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            <X size={18} />
+          </button>
         </div>
 
         <nav className="p-4 flex-1 overflow-y-auto space-y-1.5 scrollbar-clinical">
@@ -958,21 +987,21 @@ export default function App() {
           </button>
 
           <p className="text-[10px] font-bold uppercase tracking-wider mb-2 px-2" style={{ color: 'var(--text-muted)' }}>Platform</p>
-          <button onClick={() => setActiveView('dashboard')} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer text-xs font-semibold border" style={{ backgroundColor: activeView === 'dashboard' ? 'var(--accent-soft)' : 'transparent', borderColor: activeView === 'dashboard' ? 'var(--badge-border)' : 'transparent', color: activeView === 'dashboard' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+          <button onClick={() => handleNavigate('dashboard')} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer text-xs font-semibold border" style={{ backgroundColor: activeView === 'dashboard' ? 'var(--accent-soft)' : 'transparent', borderColor: activeView === 'dashboard' ? 'var(--badge-border)' : 'transparent', color: activeView === 'dashboard' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
             <LayoutDashboard size={16} /> Dashboard
           </button>
-          <button onClick={() => setActiveView('chat')} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer text-xs font-semibold border" style={{ backgroundColor: activeView === 'chat' ? 'var(--accent-soft)' : 'transparent', borderColor: activeView === 'chat' ? 'var(--badge-border)' : 'transparent', color: activeView === 'chat' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+          <button onClick={() => handleNavigate('chat')} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer text-xs font-semibold border" style={{ backgroundColor: activeView === 'chat' ? 'var(--accent-soft)' : 'transparent', borderColor: activeView === 'chat' ? 'var(--badge-border)' : 'transparent', color: activeView === 'chat' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
             <MessageSquare size={16} /> Symptom Checker
           </button>
-          <button onClick={() => setActiveView('history')} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer text-xs font-semibold border" style={{ backgroundColor: activeView === 'history' ? 'var(--accent-soft)' : 'transparent', borderColor: activeView === 'history' ? 'var(--badge-border)' : 'transparent', color: activeView === 'history' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+          <button onClick={() => handleNavigate('history')} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer text-xs font-semibold border" style={{ backgroundColor: activeView === 'history' ? 'var(--accent-soft)' : 'transparent', borderColor: activeView === 'history' ? 'var(--badge-border)' : 'transparent', color: activeView === 'history' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
             <History size={16} /> Consultations Log
           </button>
 
           <p className="text-[10px] font-bold uppercase tracking-wider mb-2 px-2 mt-5" style={{ color: 'var(--text-muted)' }}>Clinical Tools</p>
-          <button onClick={() => setActiveView('diet')} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer text-xs font-semibold border" style={{ backgroundColor: activeView === 'diet' ? 'var(--accent-soft)' : 'transparent', borderColor: activeView === 'diet' ? 'var(--badge-border)' : 'transparent', color: activeView === 'diet' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+          <button onClick={() => handleNavigate('diet')} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer text-xs font-semibold border" style={{ backgroundColor: activeView === 'diet' ? 'var(--accent-soft)' : 'transparent', borderColor: activeView === 'diet' ? 'var(--badge-border)' : 'transparent', color: activeView === 'diet' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
             <Apple size={16} /> Diet & Nutrition
           </button>
-          <button onClick={() => setActiveView('bmi')} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer text-xs font-semibold border" style={{ backgroundColor: activeView === 'bmi' ? 'var(--accent-soft)' : 'transparent', borderColor: activeView === 'bmi' ? 'var(--badge-border)' : 'transparent', color: activeView === 'bmi' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+          <button onClick={() => handleNavigate('bmi')} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer text-xs font-semibold border" style={{ backgroundColor: activeView === 'bmi' ? 'var(--accent-soft)' : 'transparent', borderColor: activeView === 'bmi' ? 'var(--badge-border)' : 'transparent', color: activeView === 'bmi' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
             <Calculator size={16} /> BMI Calculator
           </button>
         </nav>
@@ -1002,12 +1031,26 @@ export default function App() {
 
       {/* Main Workspace Area */}
       <main className="flex-1 flex flex-col relative overflow-hidden">
-        <header className="h-14 border-b flex items-center justify-between px-6 shrink-0 z-10 no-print" style={{ backgroundColor: 'var(--bg-sidebar)', borderColor: 'var(--border-color)' }}>
+        <header className="h-14 border-b flex items-center justify-between px-4 md:px-6 shrink-0 z-10 no-print" style={{ backgroundColor: 'var(--bg-sidebar)', borderColor: 'var(--border-color)' }}>
           <div className="flex items-center gap-3">
-            {activeView !== 'dashboard' && (
-              <button onClick={() => setActiveView('dashboard')} className="flex items-center gap-1.5 text-xs font-medium cursor-pointer transition-colors" style={{ color: 'var(--text-muted)' }}>
-                <ChevronLeft size={16} /> Back to Dashboard
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-1.5 rounded-lg border md:hidden cursor-pointer"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--text-main)' }}
+              aria-label="Toggle navigation menu"
+            >
+              {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+
+            {activeView !== 'dashboard' ? (
+              <button onClick={() => handleNavigate('dashboard')} className="flex items-center gap-1.5 text-xs font-medium cursor-pointer transition-colors" style={{ color: 'var(--text-muted)' }}>
+                <ChevronLeft size={16} /> <span className="hidden sm:inline">Back to Dashboard</span><span className="sm:hidden">Back</span>
               </button>
+            ) : (
+              <div className="flex items-center gap-2 md:hidden">
+                <HeartPulse style={{ color: 'var(--accent-primary)' }} size={18} />
+                <span className="text-sm font-extrabold tracking-tight" style={{ color: 'var(--text-main)' }}>PulseCare <span style={{ color: 'var(--accent-primary)' }}>AI</span></span>
+              </div>
             )}
           </div>
           <div className="flex items-center gap-3">
@@ -1016,9 +1059,9 @@ export default function App() {
         </header>
 
         <div className="flex-1 overflow-hidden relative">
-          {activeView === 'dashboard' && <DashboardView setActiveView={setActiveView} />}
-          {activeView === 'chat' && !activeReportData && <ChatView key={chatSessionId} user={user} onOpenReport={(data, symptoms) => { setActiveReportData({ data, symptoms }); setActiveView('report'); }} />}
-          {activeView === 'report' && activeReportData && <ReportView reportData={activeReportData.data} userMsg={activeReportData.symptoms} onBack={() => setActiveView('chat')} />}
+          {activeView === 'dashboard' && <DashboardView setActiveView={handleNavigate} />}
+          {activeView === 'chat' && !activeReportData && <ChatView key={chatSessionId} user={user} onOpenReport={(data, symptoms) => { setActiveReportData({ data, symptoms }); handleNavigate('report'); }} />}
+          {activeView === 'report' && activeReportData && <ReportView reportData={activeReportData.data} userMsg={activeReportData.symptoms} onBack={() => handleNavigate('chat')} />}
           {activeView === 'history' && <HistoryView />}
           {activeView === 'diet' && <DietPlannerView />}
           {activeView === 'bmi' && <BmiCalculatorView />}
